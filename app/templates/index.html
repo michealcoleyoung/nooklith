@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="layout">
+  <aside class="sidebar" aria-label="Bookmark navigation">
+    <p class="nav-label">YOUR COLLECTION</p>
+    <a class="nav-item selected" href="{{ url_for('main.index') }}" aria-current="page"><span>▤ &nbsp; All Bookmarks</span><span class="count">{{ bookmarks|length }}</span></a>
+    <button class="nav-item" disabled>☆ &nbsp; Favorites <span class="soon">Soon</span></button>
+    <p class="nav-label categories-label">CATEGORIES <span class="soon">Phase 3</span></p>
+    <ul class="category-list">
+      {% for category in categories %}<li><span class="category-dot dot-{{ loop.index }}" aria-hidden="true"></span>{{ category }}</li>{% endfor %}
+    </ul>
+    <div class="sidebar-footer"><span class="small-mark" aria-hidden="true">▱</span><p>A little less searching.<br>A little more finding.</p><span>Built by <strong>Cole.dev</strong></span></div>
+  </aside>
+  <main id="main" class="main">
+    <div class="intro"><p class="eyebrow">A HOME FOR YOUR DISCOVERIES</p><h1>All Bookmarks<span class="heading-dot">.</span></h1><p class="subtitle">Your little corner of the internet.</p></div>
+    <div class="collection-heading"><h2>Your collection</h2><span>{{ bookmarks|length }} {{ 'bookmark' if bookmarks|length == 1 else 'bookmarks' }}</span></div>
+    {% if bookmarks %}
+    <div class="bookmark-grid">
+      {% for bookmark in bookmarks %}
+      <article class="bookmark-card">
+        <span class="category-pill">{{ bookmark.category }}</span>
+        <h3>{% if bookmark.url.startswith(('https://', 'http://')) %}<a href="{{ bookmark.url }}" target="_blank" rel="noopener noreferrer">{{ bookmark.title }} ↗</a>{% else %}{{ bookmark.title }}{% endif %}</h3>
+        <p class="domain">{{ domain(bookmark.url) }}</p>
+        {% if bookmark.description %}<p>{{ bookmark.description }}</p>{% endif %}
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <section class="empty-state" aria-labelledby="empty-title">
+      <div class="empty-art" aria-hidden="true"><span class="paper paper-back"></span><span class="paper paper-front"><span class="bookmark-symbol"></span><i></i><i></i></span><span class="spark spark-one">✦</span><span class="spark spark-two">✧</span></div>
+      <span class="empty-eyebrow">ROOM FOR SOMETHING GOOD</span>
+      <h2 id="empty-title">Great finds deserve a little home.</h2>
+      <p>Your collection starts here. Soon, you’ll be able to save the<br class="desktop-break"> articles, ideas, and places you want to come back to.</p>
+      <div class="phase-note"><span aria-hidden="true">✧</span> Your nook is ready. Bookmark creation is coming in Phase 2.</div>
+    </section>
+    {% endif %}
+    <footer class="main-footer"><span>Collect what sparks your curiosity.</span><span>NOOKLITH / V0.1</span></footer>
+  </main>
+</div>
+{% endblock %}
