@@ -1,6 +1,6 @@
 # Nooklith
 
-**Your little corner of the internet.** Built by Cole.dev.
+**Your little corner of the internet.** Built by cole.dev.
 
 A lightweight personal bookmark manager built with Python, Flask, Flask-SQLAlchemy,
 SQLite, and Jinja2, with custom responsive CSS and vanilla JavaScript. Save the
