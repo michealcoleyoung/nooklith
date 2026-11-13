@@ -5,17 +5,18 @@ description = "Your little corner of the internet — a local personal bookmark 
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "beautifulsoup4>=4.15.0",
     "flask>=3.1.3",
     "flask-sqlalchemy>=3.1.1",
-    "requests>=2.34.2",
+    "flask-wtf>=1.3.0",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = ["browser: optional real browser tests using an isolated local server"]
 
 [dependency-groups]
 dev = [
+    "playwright>=1.65.1",
     "pytest>=9.2.0",
 ]

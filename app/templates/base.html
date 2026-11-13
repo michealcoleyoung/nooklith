@@ -6,13 +6,17 @@
   <meta name="description" content="Nooklith — your little corner of the internet.">
   <title>{% block title %}Nooklith · Your little corner of the internet{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="header">
     <a class="brand" href="{{ url_for('main.index') }}"><span class="brand-icon" aria-hidden="true">▱</span> nooklith<span class="brand-dot">.</span></a>
-    <button class="add-button" disabled title="Bookmark creation arrives in Phase 2">+ Add Bookmark <span class="soon">Soon</span></button>
+    <a class="add-button" href="{{ url_for('main.new_bookmark') }}">+ Add Bookmark</a>
   </header>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}<div class="flash-messages" role="status">{% for category, message in messages %}<p>{{ message }}</p>{% endfor %}</div>{% endif %}
+  {% endwith %}
   {% block content %}{% endblock %}
 </body>
 </html>

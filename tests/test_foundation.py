@@ -22,6 +22,7 @@ def test_database_persistence_and_defaults(app):
 
     restarted_app = create_app({
         "TESTING": True,
+        "SECRET_KEY": "test-only-secret-key",
         "SQLALCHEMY_DATABASE_URI": app.config["SQLALCHEMY_DATABASE_URI"],
     })
     with restarted_app.app_context():
@@ -42,5 +43,5 @@ def test_missing_page(client):
     assert client.get("/missing").status_code == 404
 
 
-def test_creation_not_available(client):
-    assert client.post("/bookmarks").status_code == 404
+def test_creation_requires_csrf(client):
+    assert client.post("/bookmarks").status_code == 400

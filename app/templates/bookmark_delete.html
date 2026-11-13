@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Delete Bookmark · Nooklith{% endblock %}
+{% block content %}
+<main id="main" class="form-page" tabindex="-1">
+  <p class="eyebrow">REMOVE A DISCOVERY</p>
+  <h1>Delete this bookmark?</h1>
+  <p class="subtitle">“{{ bookmark.title }}” will be permanently removed. This cannot be undone.</p>
+  <form method="post" action="{{ url_for('main.delete_bookmark', bookmark_id=bookmark.id) }}" class="form-actions">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="confirmed" value="yes">
+    <button class="delete-button" type="submit">Delete bookmark</button>
+    <a class="text-button" href="{{ url_for('main.index') }}">Keep bookmark</a>
+  </form>
+</main>
+{% endblock %}

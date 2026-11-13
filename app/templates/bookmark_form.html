@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit' if bookmark else 'Add' }} Bookmark · Nooklith{% endblock %}
+{% block content %}
+<main id="main" class="form-page" tabindex="-1">
+  <a class="back-link" href="{{ url_for('main.index') }}">← Back to your collection</a>
+  <p class="eyebrow">{{ 'REFINE YOUR COLLECTION' if bookmark else 'KEEP SOMETHING GOOD' }}</p>
+  <h1>{{ 'Edit bookmark' if bookmark else 'Add a bookmark' }}<span class="heading-dot">.</span></h1>
+  <p class="subtitle">{{ 'Update the details of your discovery.' if bookmark else 'A little home for your next discovery.' }}</p>
+  {% if errors %}<div class="form-summary" role="alert" tabindex="-1" aria-labelledby="form-error-title">
+    <h2 id="form-error-title">Your bookmark hasn’t been saved.</h2>
+    <p>Check these fields, then try again:</p>
+    <ul>{% for field, message in errors.items() %}<li><a href="#{{ field }}">{{ message }}</a></li>{% endfor %}</ul>
+  </div>{% endif %}
+  <form class="bookmark-form" method="post" action="{{ url_for('main.edit_bookmark', bookmark_id=bookmark.id) if bookmark else url_for('main.create_bookmark') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label for="url">Website URL <span>(required)</span></label>
+      <input id="url" name="url" type="url" required maxlength="4096" placeholder="https://example.com" value="{{ values.url }}" {% if errors.url %}aria-invalid="true" aria-describedby="url-error"{% endif %}>
+      {% if errors.url %}<p class="field-error" id="url-error">{{ errors.url }}</p>{% endif %}
+    </div>
+    <div class="field">
+      <label for="title">Title <span>(required)</span></label>
+      <input id="title" name="title" required maxlength="255" placeholder="What would you like to remember?" value="{{ values.title }}" {% if errors.title %}aria-invalid="true" aria-describedby="title-error"{% endif %}>
+      {% if errors.title %}<p class="field-error" id="title-error">{{ errors.title }}</p>{% endif %}
+    </div>
+    <div class="field">
+      <label for="description">Description <span>(optional)</span></label>
+      <textarea id="description" name="description" rows="4" maxlength="5000" placeholder="A note for your future self…" aria-describedby="description-hint{% if errors.description %} description-error{% endif %}" {% if errors.description %}aria-invalid="true"{% endif %}>{{ values.description }}</textarea>
+      <p class="field-hint" id="description-hint">Optional. Up to 5,000 characters.</p>
+      {% if errors.description %}<p class="field-error" id="description-error">{{ errors.description }}</p>{% endif %}
+    </div>
+    <div class="field">
+      <label for="category">Category</label>
+      <select id="category" name="category" {% if errors.category %}aria-invalid="true" aria-describedby="category-error"{% endif %}>
+        {% for category in categories %}<option value="{{ category }}" {% if values.category == category %}selected{% endif %}>{{ category }}</option>{% endfor %}
+      </select>
+      {% if errors.category %}<p class="field-error" id="category-error">{{ errors.category }}</p>{% endif %}
+    </div>
+    <div class="form-actions"><button class="add-button" type="submit">{{ 'Save changes' if bookmark else 'Save bookmark' }}</button><a class="text-button" href="{{ url_for('main.index') }}">Cancel</a></div>
+  </form>
+</main>
+{% endblock %}

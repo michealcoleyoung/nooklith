@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Please try again · Nooklith{% endblock %}
+{% block content %}
+<main id="main" class="error-page" tabindex="-1">
+  <p class="eyebrow">REQUEST EXPIRED</p>
+  <h1>Let’s try that again.</h1>
+  <p>We couldn’t verify this request. Nothing was changed. Return to your collection and try again from a fresh page.</p>
+  <a href="{{ url_for('main.index') }}">Return to your collection →</a>
+</main>
+{% endblock %}

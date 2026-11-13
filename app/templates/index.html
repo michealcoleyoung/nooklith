@@ -3,35 +3,57 @@
 <div class="layout">
   <aside class="sidebar" aria-label="Bookmark navigation">
     <p class="nav-label">YOUR COLLECTION</p>
-    <a class="nav-item selected" href="{{ url_for('main.index') }}" aria-current="page"><span>▤ &nbsp; All Bookmarks</span><span class="count">{{ bookmarks|length }}</span></a>
-    <button class="nav-item" disabled>☆ &nbsp; Favorites <span class="soon">Soon</span></button>
-    <p class="nav-label categories-label">CATEGORIES <span class="soon">Phase 3</span></p>
+    <button class="nav-item selected" type="button" data-view="all" aria-pressed="true" disabled><span>▤ &nbsp; All Bookmarks</span><span class="count">{{ bookmarks|length }}</span></button>
+    <button class="nav-item" type="button" data-view="favorites" aria-pressed="false" disabled><span>☆ &nbsp; Favorites</span><span class="count" id="favorite-count">{{ bookmarks|selectattr('is_favorite')|list|length }}</span></button>
+    <p class="nav-label categories-label">CATEGORIES</p>
     <ul class="category-list">
-      {% for category in categories %}<li><span class="category-dot dot-{{ loop.index }}" aria-hidden="true"></span>{{ category }}</li>{% endfor %}
+      <li><button type="button" class="category-filter selected" data-category-filter="" aria-pressed="true" disabled>All categories</button></li>
+      {% for category in categories %}<li><button type="button" class="category-filter" data-category-filter="{{ category }}" aria-pressed="false" disabled><span class="category-dot dot-{{ loop.index }}" aria-hidden="true"></span>{{ category }}</button></li>{% endfor %}
     </ul>
-    <div class="sidebar-footer"><span class="small-mark" aria-hidden="true">▱</span><p>A little less searching.<br>A little more finding.</p><span>Built by <strong>Cole.dev</strong></span></div>
+    <div class="sidebar-footer"><span class="small-mark" aria-hidden="true">▱</span><p>A little less searching.<br>A little more finding.</p><span>Built by <strong>cole.dev</strong></span></div>
   </aside>
-  <main id="main" class="main">
-    <div class="intro"><p class="eyebrow">A HOME FOR YOUR DISCOVERIES</p><h1>All Bookmarks<span class="heading-dot">.</span></h1><p class="subtitle">Your little corner of the internet.</p></div>
-    <div class="collection-heading"><h2>Your collection</h2><span>{{ bookmarks|length }} {{ 'bookmark' if bookmarks|length == 1 else 'bookmarks' }}</span></div>
+  <main id="main" class="main" tabindex="-1">
+    <div class="intro"><p class="eyebrow">A HOME FOR YOUR DISCOVERIES</p><h1><span id="collection-title">All Bookmarks</span><span class="heading-dot">.</span></h1><p class="subtitle">Your little corner of the internet.</p></div>
+    <div class="search-field"><label for="bookmark-search">Search your collection</label><input id="bookmark-search" type="search" placeholder="Search titles, URLs, and notes…" autocomplete="off" aria-describedby="search-hint" disabled><p id="search-hint" class="field-hint">Search works together with your category and Favorites filters.</p></div>
+    <div class="filter-context"><p id="filter-summary" class="filter-summary" hidden></p><button id="reset-filters" class="text-button" type="button" hidden>Clear search and filters</button></div>
+    <noscript><p class="subtitle">Enable JavaScript for instant search and filters. You can still manage bookmarks and favorites.</p></noscript>
+    <p id="favorite-feedback" class="favorite-feedback" role="status" aria-live="polite"></p>
+    <div class="collection-heading"><h2>Your collection</h2><span id="result-count" role="status" aria-live="polite">{{ bookmarks|length }} {{ 'bookmark' if bookmarks|length == 1 else 'bookmarks' }}</span></div>
     {% if bookmarks %}
     <div class="bookmark-grid">
       {% for bookmark in bookmarks %}
-      <article class="bookmark-card">
-        <span class="category-pill">{{ bookmark.category }}</span>
-        <h3>{% if bookmark.url.startswith(('https://', 'http://')) %}<a href="{{ bookmark.url }}" target="_blank" rel="noopener noreferrer">{{ bookmark.title }} ↗</a>{% else %}{{ bookmark.title }}{% endif %}</h3>
+      <article class="bookmark-card" data-bookmark data-title="{{ bookmark.title }}" data-url="{{ bookmark.url }}" data-description="{{ bookmark.description or '' }}" data-category="{{ bookmark.category }}" data-favorite="{{ 'true' if bookmark.is_favorite else 'false' }}">
+        <div class="card-heading"><span class="category-pill">{{ bookmark.category }}</span>
+          <form method="post" action="{{ url_for('main.toggle_favorite', bookmark_id=bookmark.id) }}" data-favorite-form>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="favorite-button" type="submit" aria-pressed="{{ 'true' if bookmark.is_favorite else 'false' }}" aria-label="{{ 'Remove ' ~ bookmark.title ~ ' from favorites' if bookmark.is_favorite else 'Add ' ~ bookmark.title ~ ' to favorites' }}"><span aria-hidden="true">{{ '★' if bookmark.is_favorite else '☆' }}</span></button>
+          </form>
+        </div>
+        <h3>{% if bookmark.url.startswith(('https://', 'http://')) %}<a href="{{ bookmark.url }}" target="_blank" rel="noopener noreferrer">{{ bookmark.title }} <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>{% else %}{{ bookmark.title }}{% endif %}</h3>
         <p class="domain">{{ domain(bookmark.url) }}</p>
         {% if bookmark.description %}<p>{{ bookmark.description }}</p>{% endif %}
+        <div class="card-actions">
+          <a class="text-button" href="{{ url_for('main.edit_bookmark', bookmark_id=bookmark.id) }}" aria-label="Edit {{ bookmark.title }}">Edit</a>
+          <form method="post" action="{{ url_for('main.delete_bookmark', bookmark_id=bookmark.id) }}" data-delete-form>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="text-button danger" type="submit" aria-label="Delete {{ bookmark.title }}">Delete</button>
+          </form>
+        </div>
       </article>
       {% endfor %}
     </div>
+    <section id="no-results" class="empty-state no-results" hidden aria-labelledby="no-results-title">
+      <h2 id="no-results-title">No discoveries match just yet.</h2>
+      <p>Try another search or adjust your filters.</p>
+      <button id="clear-filters" class="add-button empty-action" type="button">Clear search and filters</button>
+    </section>
     {% else %}
     <section class="empty-state" aria-labelledby="empty-title">
       <div class="empty-art" aria-hidden="true"><span class="paper paper-back"></span><span class="paper paper-front"><span class="bookmark-symbol"></span><i></i><i></i></span><span class="spark spark-one">✦</span><span class="spark spark-two">✧</span></div>
       <span class="empty-eyebrow">ROOM FOR SOMETHING GOOD</span>
       <h2 id="empty-title">Great finds deserve a little home.</h2>
-      <p>Your collection starts here. Soon, you’ll be able to save the<br class="desktop-break"> articles, ideas, and places you want to come back to.</p>
-      <div class="phase-note"><span aria-hidden="true">✧</span> Your nook is ready. Bookmark creation is coming in Phase 2.</div>
+      <p>Your collection starts here. Save the articles, ideas, and<br class="desktop-break"> places you want to come back to.</p>
+      <a class="add-button empty-action" href="{{ url_for('main.new_bookmark') }}">+ Save your first bookmark</a>
     </section>
     {% endif %}
     <footer class="main-footer"><span>Collect what sparks your curiosity.</span><span>NOOKLITH / V0.1</span></footer>
