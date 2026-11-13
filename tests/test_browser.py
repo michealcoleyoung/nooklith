@@ -172,9 +172,14 @@ def test_without_javascript(browser, live_server, demo):
         context.close()
 
 
-def test_manage_custom_categories(page, live_server):
+def test_manage_custom_categories(page, live_server, request):
     page.goto(live_server)
     page.get_by_role("link", name="Manage categories", exact=True).click()
+    page.locator("#name").fill("Design")
+    page.get_by_role("button", name="Add category", exact=True).click()
+    expect(page.get_by_role("button", name="Delete category Design", exact=True)).to_be_visible()
+    page.locator("#name").fill("Photography")
+    screenshot(page, request, "categories.png")
     category = "Design" * 8
     page.locator("#name").fill(category)
     page.get_by_role("button", name="Add category", exact=True).click()

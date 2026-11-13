@@ -12,13 +12,15 @@ services. The core application is complete through **Phase 5 — Portfolio readi
 ![Nooklith desktop dashboard showing six example bookmarks](docs/screenshots/desktop.png)
 
 <details>
-<summary>Mobile dashboard, empty state, and bookmark form</summary>
+<summary>Mobile dashboard, empty state, bookmark form, and categories</summary>
 
 <img src="docs/screenshots/mobile.png" alt="Nooklith mobile dashboard with wrapping category controls and single-column cards" width="320">
 
 ![Empty collection](docs/screenshots/empty-state.png)
 
 ![Add bookmark form](docs/screenshots/bookmark-form.png)
+
+![Manage categories with a saved Design category and the form ready to add Photography](docs/screenshots/categories.png)
 
 </details>
 
@@ -167,7 +169,7 @@ uv run playwright install chromium
 uv run pytest --browser --browser-channel chromium
 ```
 
-To refresh the four tracked screenshots with demo data:
+To refresh the five tracked screenshots with demo data:
 
 ```bash
 uv run pytest --browser --screenshots tests/test_browser.py
