@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Manage Categories · Nooklith{% endblock %}
+{% block content %}
+<main id="main" class="form-page" tabindex="-1">
+  <a class="back-link" href="{{ url_for('main.index') }}">← Back to your collection</a>
+  <p class="eyebrow">MAKE ROOM FOR YOUR INTERESTS</p>
+  <h1>Manage categories<span class="heading-dot">.</span></h1>
+  <p class="subtitle">Add your own categories. Removing a category keeps its bookmarks in Other.</p>
+  {% if error %}<div class="form-summary" role="alert" tabindex="-1"><p><a href="#name">{{ error }}</a></p></div>{% endif %}
+  <form class="bookmark-form" method="post" action="{{ url_for('main.create_category') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label for="name">Category name <span>(required)</span></label>
+      <input id="name" name="name" value="{{ name }}" required maxlength="50" placeholder="For example, Design" {% if error %}aria-invalid="true" aria-describedby="name-error"{% endif %}>
+      {% if error %}<p class="field-error" id="name-error">{{ error }}</p>{% endif %}
+    </div>
+    <button class="add-button" type="submit">Add category</button>
+  </form>
+  <h2 class="category-heading">Your categories</h2>
+  <ul class="managed-categories">
+    {% for category in categories %}
+    <li><span>{{ category.name }}</span>
+      {% if category.name == 'Other' %}<span class="field-hint">Default · always available</span>
+      {% else %}<form method="post" action="{{ url_for('main.delete_category', category_id=category.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="text-button danger" type="submit" aria-label="Delete category {{ category.name }}">Delete</button>
+      </form>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</main>
+{% endblock %}

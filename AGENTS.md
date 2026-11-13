@@ -8,6 +8,8 @@ Nooklith is a **local-only, single-user bookmark manager** and Cole.dev portfoli
 
 **Phases 1–5 are approved.** The core application is implemented; Phase 5 covers portfolio readiness, tests, screenshots, documentation, and GitHub publication. Do not implement optional Phase 6 title fetching unless the user explicitly approves it.
 
+Custom category creation/deletion is also approved. Deletion must preserve bookmarks by moving them to the protected Other category.
+
 ## Stack and package management
 
 - Python 3.12+, Flask, Flask-SQLAlchemy, SQLite, Jinja2, HTML, CSS, vanilla JavaScript.

@@ -2,7 +2,29 @@ from datetime import datetime, timezone
 
 from app import db
 
-CATEGORIES = ("Technology", "Music", "Research", "Personal", "Other")
+DEFAULT_CATEGORIES = ("Technology", "Music", "Research", "Personal", "Other")
+
+
+class Category(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    name_key = db.Column(db.String(150), nullable=False, unique=True)
+
+
+def initialize_categories():
+    """Seed once, including existing bookmark categories when upgrading."""
+    if db.session.execute(db.select(Category.id).limit(1)).first() is not None:
+        return
+    existing = db.session.execute(db.select(Bookmark.category).distinct()).scalars().all()
+    names = dict.fromkeys((*DEFAULT_CATEGORIES, *existing))
+    for name in names:
+        if name:
+            db.session.add(Category(name=name, name_key=name.casefold()))
+    db.session.commit()
+
+
+def category_names():
+    return db.session.execute(db.select(Category.name).order_by(Category.id)).scalars().all()
 
 
 def utc_now():

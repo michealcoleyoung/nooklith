@@ -35,6 +35,7 @@
         {% for category in categories %}<option value="{{ category }}" {% if values.category == category %}selected{% endif %}>{{ category }}</option>{% endfor %}
       </select>
       {% if errors.category %}<p class="field-error" id="category-error">{{ errors.category }}</p>{% endif %}
+      <p class="field-hint">Need another category? <a href="{{ url_for('main.manage_categories') }}">Manage categories</a> before filling out this form.</p>
     </div>
     <div class="form-actions"><button class="add-button" type="submit">{{ 'Save changes' if bookmark else 'Save bookmark' }}</button><a class="text-button" href="{{ url_for('main.index') }}">Cancel</a></div>
   </form>

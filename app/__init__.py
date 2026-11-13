@@ -45,5 +45,6 @@ def create_app(test_config=None):
 
     with app.app_context():
         db.create_all()
+        models.initialize_categories()
 
     return app

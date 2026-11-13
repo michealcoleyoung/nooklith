@@ -1,11 +1,13 @@
 from ipaddress import ip_address
 import re
+import unicodedata
 from urllib.parse import urlsplit, urlunsplit
 
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, jsonify, redirect, render_template, request, url_for
+from sqlalchemy.exc import IntegrityError
 
 from app import db
-from app.models import Bookmark, CATEGORIES
+from app.models import Bookmark, Category, category_names
 
 main = Blueprint("main", __name__)
 
@@ -61,7 +63,7 @@ def bookmark_values():
     else:
         values["url"] = normalized_url
     values["category"] = values["category"] or "Other"
-    if values["category"] not in CATEGORIES:
+    if values["category"] not in category_names():
         errors["category"] = "Choose one of the listed categories."
     if len(values["description"]) > 5000:
         errors["description"] = "Keep the description to 5,000 characters or fewer."
@@ -71,7 +73,7 @@ def bookmark_values():
 def render_form(values, errors=None, bookmark=None):
     return render_template(
         "bookmark_form.html", values=values, errors=errors or {},
-        bookmark=bookmark, categories=CATEGORIES,
+        bookmark=bookmark, categories=category_names(),
     )
 
 
@@ -81,7 +83,7 @@ def index():
         db.select(Bookmark).order_by(Bookmark.created_at.desc(), Bookmark.id.desc())
     ).scalars().all()
     return render_template(
-        "index.html", bookmarks=bookmarks, categories=CATEGORIES,
+        "index.html", bookmarks=bookmarks, categories=category_names(),
         domain=lambda url: urlsplit(url).netloc,
     )
 
@@ -140,3 +142,48 @@ def toggle_favorite(bookmark_id):
         return jsonify(id=bookmark.id, is_favorite=bookmark.is_favorite)
     flash("Added to favorites." if bookmark.is_favorite else "Removed from favorites.", "success")
     return redirect(url_for("main.index"), code=303)
+
+
+def render_categories(name="", error=None):
+    categories = db.session.execute(db.select(Category).order_by(Category.id)).scalars().all()
+    return render_template("categories.html", categories=categories, name=name, error=error)
+
+
+@main.get("/categories")
+def manage_categories():
+    return render_categories()
+
+
+@main.post("/categories")
+def create_category():
+    raw_name = request.form.get("name", "")
+    name = " ".join(raw_name.split())
+    if not name or len(name) > 50:
+        return render_categories(name, "Enter a category name between 1 and 50 characters."), 422
+    if any(unicodedata.category(character).startswith("C") for character in raw_name):
+        return render_categories(name, "Category names cannot contain control characters."), 422
+    db.session.add(Category(name=name, name_key=name.casefold()))
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return render_categories(name, "That category already exists. Choose a different name."), 422
+    flash(f'Category “{name}” added.', "success")
+    return redirect(url_for("main.manage_categories"), code=303)
+
+
+@main.post("/categories/<int:category_id>/delete")
+def delete_category(category_id):
+    category = db.get_or_404(Category, category_id)
+    if category.name == "Other":
+        abort(400, description="Other is the fallback category and cannot be deleted.")
+    if request.form.get("confirmed") != "yes":
+        return render_template("category_delete.html", category=category)
+    db.session.execute(
+        db.update(Bookmark).where(Bookmark.category == category.name).values(category="Other")
+    )
+    name = category.name
+    db.session.delete(category)
+    db.session.commit()
+    flash(f'Category “{name}” deleted. Its bookmarks are now in Other.', "success")
+    return redirect(url_for("main.manage_categories"), code=303)

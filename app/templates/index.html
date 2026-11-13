@@ -10,6 +10,7 @@
       <li><button type="button" class="category-filter selected" data-category-filter="" aria-pressed="true" disabled>All categories</button></li>
       {% for category in categories %}<li><button type="button" class="category-filter" data-category-filter="{{ category }}" aria-pressed="false" disabled><span class="category-dot dot-{{ loop.index }}" aria-hidden="true"></span>{{ category }}</button></li>{% endfor %}
     </ul>
+    <a class="text-button manage-categories" href="{{ url_for('main.manage_categories') }}">Manage categories</a>
     <div class="sidebar-footer"><span class="small-mark" aria-hidden="true">▱</span><p>A little less searching.<br>A little more finding.</p><span>Built by <strong>cole.dev</strong></span></div>
   </aside>
   <main id="main" class="main" tabindex="-1">

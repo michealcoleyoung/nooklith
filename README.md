@@ -38,6 +38,7 @@ Node.js's built-in test runner, and Git. No frontend framework or build step.
   and automatic creation/update timestamps.
 - Automatic database creation on application startup.
 - Create and edit bookmarks with URL, title, description, and category.
+- Add and delete your own categories; deleting a category preserves its bookmarks.
 - Delete bookmarks with confirmation, including a JavaScript-free fallback.
 - Saved bookmarks display newest first, with safe external links.
 - Server-side validation and CSRF protection on every state-changing request.
@@ -84,6 +85,27 @@ Choose **Add Bookmark**, enter an HTTP/HTTPS URL and title, optionally add a not
 and category, then save. New bookmarks appear on the dashboard immediately.
 Choose **Edit** on a card to update its details, or **Delete** and confirm to
 permanently remove it. Cancel leaves your collection unchanged.
+
+### Your own categories
+
+Select **Manage categories** in the dashboard sidebar or bookmark form. Enter a
+name and choose **Add category**. It becomes available in bookmark forms and
+category filters immediately. Names contain 1–50 characters; surrounding and
+repeated whitespace are normalized, and case-insensitive duplicates are rejected.
+
+To remove one, choose its **Delete** button and confirm on the next page.
+Bookmarks in that category move to **Other**, keeping their URLs, notes, and
+favorite status. **Other** is the permanent fallback and cannot be deleted.
+You can delete the other starter categories as well as your own. Deleted
+categories stay deleted after restarting the app.
+
+Existing installations upgrade automatically at startup: the app adds a category
+table and imports the starter categories and any existing bookmark categories.
+Bookmark records are preserved. No manual migration or extra dependency is needed
+for this change. Create categories before filling out a bookmark form; following
+the management link does not save an unfinished form.
+
+### Search and favorites
 
 Type in **Search your collection** to filter as you type. Choose a category to
 narrow results, and **Favorites** to show only starred bookmarks within that
@@ -135,7 +157,7 @@ Browser tests use a temporary database, an ephemeral loopback server, and an
 isolated browser profile. They cover combined filters, favorite persistence and
 failure feedback, CRUD, delete cancellation, validation focus, keyboard navigation,
 JavaScript-free forms, and overflow at desktop, tablet, 390px, and 320px widths.
-The default `uv run pytest` skips these five opt-in tests so normal testing does
+The default `uv run pytest` skips these six opt-in tests so normal testing does
 not require a browser.
 
 To use Playwright's Chromium instead of an installed Chrome:
@@ -194,7 +216,7 @@ and do not change data.
 ## Known limitations and future improvements
 
 - Local, single-user use only; no authentication or public application deployment.
-- Fixed categories; no custom category management in version 1.
+- Category renaming is not supported; add a new category and edit bookmarks to move them.
 - Search and filters run in the browser and reset when the page reloads.
 - All bookmarks load together; pagination could help with larger collections.
 - `db.create_all()` creates missing tables but does not migrate existing schemas.

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Delete Category · Nooklith{% endblock %}
+{% block content %}
+<main id="main" class="form-page" tabindex="-1">
+  <p class="eyebrow">KEEP YOUR BOOKMARKS, SIMPLIFY YOUR CATEGORIES</p>
+  <h1>Delete this category?</h1>
+  <p class="subtitle">“{{ category.name }}” will be removed. Its bookmarks will move to Other. No bookmarks will be deleted.</p>
+  <form method="post" action="{{ url_for('main.delete_category', category_id=category.id) }}" class="form-actions">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="confirmed" value="yes">
+    <button class="delete-button" type="submit">Delete category</button>
+    <a class="text-button" href="{{ url_for('main.manage_categories') }}">Keep category</a>
+  </form>
+</main>
+{% endblock %}

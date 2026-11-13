@@ -56,7 +56,12 @@ Default options: **Technology, Music, Research, Personal, Other**.
 
 - Select a category on create/edit; default to Other.
 - Filter by category and offer an All Bookmarks view.
-- Custom category management is out of scope for version 1.
+- Users can add and delete categories through a management page.
+- Names must be 1–50 characters, whitespace-normalized, and unique without regard to case.
+- Deletion requires confirmation and moves affected bookmarks to Other without deleting them.
+- Other is the permanent fallback and cannot be deleted. Other starter categories may be removed.
+- Preserve existing bookmarks when initializing category storage; do not recreate deleted categories on restart.
+- Category renaming remains out of scope.
 
 ### 3.6 Instant search
 
@@ -97,11 +102,20 @@ Create a SQLAlchemy `Bookmark` model:
 
 Use Flask-SQLAlchemy and ORM queries. Initialize the database during local setup. Keep database files outside version control. Keep the model easy to extend.
 
+Categories are stored in a `Category` table with an integer primary key, a unique
+50-character name, and a unique case-folded name key. Keep `Bookmark.category` as
+text so the existing database upgrades without rebuilding bookmark records.
+Seed starter and existing bookmark categories only when first initializing the
+category table. Delete categories and reassign their bookmarks in one transaction.
+
 ## 6. Routes
 
 | Method | Path | Purpose |
 | --- | --- | --- |
 | GET | `/` | Dashboard |
+| GET | `/categories` | Manage categories |
+| POST | `/categories` | Create category |
+| POST | `/categories/<id>/delete` | Confirm and delete category; move bookmarks to Other |
 | GET | `/bookmarks/new` | New bookmark form |
 | POST | `/bookmarks` | Create bookmark |
 | GET | `/bookmarks/<id>/edit` | Edit form |

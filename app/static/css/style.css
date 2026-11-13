@@ -1,3 +1,50 @@
+.manage-categories {
+  margin: 12px 8px 0;
+  justify-content: flex-start;
+}
+
+.sidebar .category-filter {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.sidebar .category-list li {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.category-heading {
+  font-size: 18px;
+  margin-top: 32px;
+}
+
+.managed-categories {
+  list-style: none;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.managed-categories li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  overflow-wrap: anywhere;
+}
+
+.managed-categories li + li {
+  border-top: 1px solid var(--line);
+}
+
+.field-hint a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 :root {
   color-scheme:dark;
   --bg:#121416;
